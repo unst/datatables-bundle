@@ -202,7 +202,7 @@ abstract class AbstractColumn
      */
     public function isSearchable(): bool
     {
-        return $this->options['searchable'] ?? !empty($this->getField());
+        return $this->options['searchable'] ?? false;
     }
 
     /**
@@ -210,7 +210,7 @@ abstract class AbstractColumn
      */
     public function isOrderable(): bool
     {
-        return $this->options['orderable'] ?? !empty($this->getOrderField());
+        return $this->options['orderable'] ?? false;
     }
 
     /**
@@ -226,7 +226,7 @@ abstract class AbstractColumn
      */
     public function getOrderField()
     {
-        return $this->options['orderField'] ?? $this->getField();
+        return $this->options['orderField'];
     }
 
     /**
@@ -234,7 +234,7 @@ abstract class AbstractColumn
      */
     public function isGlobalSearchable(): bool
     {
-        return $this->options['globalSearchable'] ?? $this->isSearchable();
+        return $this->options['globalSearchable'] ?? false;
     }
 
     /**
