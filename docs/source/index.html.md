@@ -37,14 +37,14 @@ public function registerBundles()
 }
 ```
 
-After installation you should register the bundle to your kernel, commonly `AppKernel.php`, before your
-own bundles but after the required external bundles, such as `FrameworkBundle` and `TwigBundle`.
+After installation, if not using Flex, you should register the bundle to your kernel, commonly `AppKernel.php`,
+before your own bundles but after the required external bundles, such as `FrameworkBundle` and `TwigBundle`.
 
 Run the `assets:install` command to deploy the included Javascript files to your application's public folder.
 
 <code>bin/console assets:install</code>
 
-That last step is actually optional, as you can also load it through Assetic or WebPack, but a good starting point.
+That last step is optional, as you can also load it through Assetic or WebPack, but a good starting point.
  
 ## Clientside dependencies
 
@@ -65,9 +65,9 @@ The code snippets here should get you started quickly, including jQuery 3. For m
 # Quickstart
 
 ```php?start_inline=true
-use Omines\DataTablesBundle\DataTablesTrait;
 use Omines\DataTablesBundle\Adapter\ArrayAdapter;
 use Omines\DataTablesBundle\Column\TextColumn;
+use Omines\DataTablesBundle\Controller\DataTablesTrait;
 
 class MyController extends Controller
 {
@@ -158,10 +158,10 @@ datatables:
     template_parameters:
 
         # Default class attribute to apply to the root table elements
-        className:            'table table-bordered'
+        className:        'table table-bordered'
 
         # If and where to enable the DataTables Filter module
-        columnFilter:         null # One of "thead"; "tfoot"; "both"; null
+        columnFilter:     null # One of "thead"; "tfoot"; "both"; null
 
     # Default translation domain to be used
     translation_domain:   messages
@@ -281,6 +281,42 @@ in this example.
 Note that implementing your own criteria overrides the default, meaning searching and sorting will no
 longer work automatically. Add the `SearchCriteriaProvider` manually to combine the default behavior
 with your own implementation.
+
+## Elastica
+
+```php?start_inline=1
+use Omines\DataTablesBundle\Adapter\Elasticsearch\ElasticaAdapter;
+
+$table = $this->createDataTable()
+    ->setName('log')
+    ->add('timestamp', DateTimeColumn::class, ['field' => '@timestamp', 'format' => 'Y-m-d H:i:s', 'orderable' => true])
+    ->add('level', MapColumn::class, [
+        'default' => '<span class="label label-default">Unknown</span>',
+        'map' => ['Emergency', 'Alert', 'Critical', 'Error', 'Warning', 'Notice', 'Info', 'Debug'],
+    ])
+    ->add('message', TextColumn::class, ['globalSearchable' => true])
+    ->createAdapter(ElasticaAdapter::class, [
+        'client' => ['host' => 'elasticsearch'],
+        'index' => 'logstash-*',
+    ]);
+```
+If you have installed `ruflin/elastica` you can use the provided `ElasticaAdapter` to use ElasticSearch
+indexes as the data source.
+
+## MongoDB
+
+```php?start_inline=1
+use Omines\DataTablesBundle\Adapter\MongoDB\MongoDBAdapter;
+
+$table = $this->createDataTable()
+    ->add('name', TextColumn::class)
+    ->add('company', TextColumn::class)
+    ->createAdapter(MongoDBAdapter::class, [
+        'collection' => 'myCollection',
+    ]);
+```
+If you have installed `mongodb/mongodb` you can use the provided `MongoDBAdapter` to use MongoDB
+collections as the data source.
 
 ## Arrays
 
@@ -447,7 +483,30 @@ argument which is passed to the type class for parametrized instantiation.
 
 # Javascript
 
-TBD.
+```javascript
+$('#table1').initDataTables({{ datatable_settings(datatable1) }}, {
+    searching: true,
+    dom:'<"html5buttons"B>lTfgitp',
+    buttons: [
+        'copy',
+        { extend: 'pdf', title: 'domains'},
+        { extend: 'print' }
+    ]
+}).then(function(dt) {
+    // dt contains the initialized instance of DataTables
+    dt.on('draw', function() {
+        alert('Redrawing table');
+    })
+});
+```
+During the quickstart we introduced the `initDataTables` Javascript function, taking the serverside
+settings as its argument. The function takes an optional second argument, which is merged into the
+serverside settings to override any template-specific changes, but as this is executed in the browser
+it also means this is where you can add Javascript events according to DataTables documentation.
+
+The function returns a [`Promise`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)
+which is fulfilled with the `DataTables` instance once initialization is completed. This allows you
+all the flexibility you could need to [invoke API functions](https://datatables.net/reference/api/).
 
 # Legal
 
