@@ -226,7 +226,7 @@ abstract class AbstractColumn
      */
     public function getOrderField()
     {
-        return $this->options['orderField'] ?? $this->getField();
+        return $this->options['orderField'];
     }
 
     /**
