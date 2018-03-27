@@ -113,7 +113,12 @@ class ORMAdapter extends AbstractAdapter
         // Provide default field mappings if needed
         foreach ($state->getDataTable()->getColumns() as $column) {
             if (null === $column->getField() && isset($this->metadata->fieldMappings[$name = $column->getName()])) {
-                $column->setOption('field', "{$rootAlias}.{$name}");
+                $column->setField("{$rootAlias}.{$name}");
+            }
+
+            // For ORM all actual fields default to orderable & searchable as RDBMS can always handle that
+            if (null !== $column->getOrderField()) {
+                //$column->setOrderable($column->getO)
             }
         }
 

@@ -226,7 +226,7 @@ abstract class AbstractColumn
      */
     public function getOrderField()
     {
-        return $this->options['orderField'];
+        return $this->options['orderField'] ?? $this->getField();
     }
 
     /**
@@ -254,13 +254,23 @@ abstract class AbstractColumn
     }
 
     /**
-     * @param string $name
-     * @param mixed $value
-     * @return $this
+     * @param string $field
+     * @return AbstractColumn
      */
-    public function setOption(string $name, $value): self
+    public function setField(string $field): self
     {
-        $this->options[$name] = $value;
+        $this->options['field'] = $field;
+
+        return $this;
+    }
+
+    /**
+     * @param string $field
+     * @return AbstractColumn
+     */
+    public function setOrderField(string $field): self
+    {
+        $this->options['orderField'] = $field;
 
         return $this;
     }

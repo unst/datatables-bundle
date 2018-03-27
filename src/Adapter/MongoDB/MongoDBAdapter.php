@@ -60,7 +60,7 @@ class MongoDBAdapter extends AbstractAdapter
     {
         foreach ($query->getState()->getDataTable()->getColumns() as $column) {
             if (null === $column->getField()) {
-                $column->setOption('field', $column->getName());
+                $column->setField($column->getName());
             }
         }
 
