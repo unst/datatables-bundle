@@ -12,11 +12,13 @@ declare(strict_types=1);
 
 namespace Omines\DataTablesBundle\Exception;
 
+use LogicException;
+
 /**
  * MissingDependencyException.
  *
  * @author Niels Keurentjes <niels.keurentjes@omines.com>
  */
-class MissingDependencyException extends \LogicException
+class MissingDependencyException extends LogicException
 {
 }

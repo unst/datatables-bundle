@@ -12,11 +12,13 @@ declare(strict_types=1);
 
 namespace Omines\DataTablesBundle\Exception;
 
+use RuntimeException;
+
 /**
  * InvalidConfigurationException.
  *
  * @author Niels Keurentjes <niels.keurentjes@omines.com>
  */
-class InvalidConfigurationException extends \RuntimeException
+class InvalidConfigurationException extends RuntimeException
 {
 }

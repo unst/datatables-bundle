@@ -12,6 +12,8 @@ declare(strict_types=1);
 
 namespace Omines\DataTablesBundle\Adapter;
 
+use Iterator;
+
 /**
  * ResultSetInterface.
  *
@@ -36,7 +38,7 @@ interface ResultSetInterface
     /**
      * Returns the raw data in the result set.
      *
-     * @return \Iterator
+     * @return Iterator
      */
-    public function getData(): \Iterator;
+    public function getData(): Iterator;
 }

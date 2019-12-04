@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace Omines\DataTablesBundle\Adapter\Doctrine;
 
 use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Query;
 use Doctrine\ORM\QueryBuilder;
 use Omines\DataTablesBundle\Adapter\AbstractAdapter;
@@ -25,9 +26,10 @@ use Omines\DataTablesBundle\Column\AbstractColumn;
 use Omines\DataTablesBundle\DataTableState;
 use Omines\DataTablesBundle\Exception\InvalidConfigurationException;
 use Omines\DataTablesBundle\Exception\MissingDependencyException;
-use Symfony\Bridge\Doctrine\RegistryInterface;
 use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Doctrine\Common\Persistence\ManagerRegistry;
+use Traversable;
 
 /**
  * ORMAdapter.
@@ -37,13 +39,13 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
  */
 class ORMAdapter extends AbstractAdapter
 {
-    /** @var RegistryInterface */
+    /** @var ManagerRegistry */
     private $registry;
 
     /** @var EntityManager */
     private $manager;
 
-    /** @var \Doctrine\ORM\Mapping\ClassMetadata */
+    /** @var ClassMetadata */
     private $metadata;
 
     /** @var int */
@@ -58,9 +60,9 @@ class ORMAdapter extends AbstractAdapter
     /**
      * DoctrineAdapter constructor.
      *
-     * @param RegistryInterface|null $registry
+     * @param ManagerRegistry|null $registry
      */
-    public function __construct(RegistryInterface $registry = null)
+    public function __construct(ManagerRegistry $registry = null)
     {
         if (null === $registry) {
             throw new MissingDependencyException('Install doctrine/doctrine-bundle to use the ORMAdapter');
@@ -156,7 +158,7 @@ class ORMAdapter extends AbstractAdapter
                     continue;
                 }
 
-                list($origin, $target) = explode('.', $join->getJoin());
+                [$origin, $target] = explode('.', $join->getJoin());
 
                 $mapping = $aliases[$origin][1]->getAssociationMapping($target);
                 $aliases[$join->getAlias()] = [$join->getJoin(), $this->manager->getMetadataFactory()->getMetadataFor($mapping['targetEntity'])];
@@ -176,16 +178,16 @@ class ORMAdapter extends AbstractAdapter
 
     /**
      * @param AdapterQuery $query
-     * @return \Traversable
+     * @return Traversable
      */
-    protected function getResults(AdapterQuery $query): \Traversable
+    protected function getResults(AdapterQuery $query): Traversable
     {
         /** @var QueryBuilder $builder */
         $builder = $query->get('qb');
         $state = $query->getState();
 
         // Apply definitive view state for current 'page' of the table
-        foreach ($state->getOrderBy() as list($column, $direction)) {
+        foreach ($state->getOrderBy() as [$column, $direction]) {
             /** @var AbstractColumn $column */
             if ($column->isOrderable()) {
                 $builder->addOrderBy($column->getOrderField(), $direction);
@@ -200,7 +202,7 @@ class ORMAdapter extends AbstractAdapter
 
         $query = $builder->getQuery();
         $event = new ORMAdapterQueryEvent($query);
-        $state->getDataTable()->getEventDispatcher()->dispatch(ORMAdapterEvents::PRE_QUERY, $event);
+        $state->getDataTable()->getEventDispatcher()->dispatch($event, ORMAdapterEvents::PRE_QUERY);
 
         foreach ($query->iterate([], $this->hydrationMode) as $result) {
             yield $entity = array_values($result)[0];
@@ -286,13 +288,13 @@ class ORMAdapter extends AbstractAdapter
         if (count($parts) < 2) {
             throw new InvalidConfigurationException(sprintf("Field name '%s' must consist at least of an alias and a field separated with a period", $field));
         }
-        list($origin, $target) = $parts;
+        [$origin, $target] = $parts;
 
         $path = [$target];
         $current = $aliases[$origin][0];
 
         while (null !== $current) {
-            list($origin, $target) = explode('.', $current);
+            [$origin, $target] = explode('.', $current);
             $path[] = $target;
             $current = $aliases[$origin][0];
         }

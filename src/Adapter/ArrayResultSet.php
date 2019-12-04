@@ -12,6 +12,9 @@ declare(strict_types=1);
 
 namespace Omines\DataTablesBundle\Adapter;
 
+use ArrayIterator;
+use Iterator;
+
 /**
  * ArrayResultSet.
  *
@@ -61,8 +64,8 @@ class ArrayResultSet implements ResultSetInterface
     /**
      * {@inheritdoc}
      */
-    public function getData(): \Iterator
+    public function getData(): Iterator
     {
-        return new \ArrayIterator($this->data);
+        return new ArrayIterator($this->data);
     }
 }

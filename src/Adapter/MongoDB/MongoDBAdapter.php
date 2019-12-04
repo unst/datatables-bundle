@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace Omines\DataTablesBundle\Adapter\MongoDB;
 
+use MongoDB\BSON\Regex;
 use MongoDB\BSON\UTCDateTime;
 use MongoDB\Collection;
 use MongoDB\Model\BSONDocument;
@@ -21,6 +22,7 @@ use Omines\DataTablesBundle\Column\AbstractColumn;
 use Omines\DataTablesBundle\DataTable;
 use Omines\DataTablesBundle\DataTableState;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Traversable;
 
 /**
  * MongoDBAdapter.
@@ -78,7 +80,7 @@ class MongoDBAdapter extends AbstractAdapter
     /**
      * {@inheritdoc}
      */
-    protected function getResults(AdapterQuery $query): \Traversable
+    protected function getResults(AdapterQuery $query): Traversable
     {
         $state = $query->getState();
 
@@ -111,7 +113,7 @@ class MongoDBAdapter extends AbstractAdapter
         if (!empty($globalSearch = $state->getGlobalSearch())) {
             foreach ($state->getDataTable()->getColumns() as $column) {
                 if ($column->isGlobalSearchable()) {
-                    $filter[] = [$column->getField() => new \MongoDB\BSON\Regex($globalSearch, 'i')];
+                    $filter[] = [$column->getField() => new Regex($globalSearch, 'i')];
                 }
             }
             $filter = ['$or' => $filter];
@@ -132,7 +134,7 @@ class MongoDBAdapter extends AbstractAdapter
             'sort' => [],
         ];
 
-        foreach ($state->getOrderBy() as list($column, $direction)) {
+        foreach ($state->getOrderBy() as [$column, $direction]) {
             /** @var AbstractColumn $column */
             if ($column->isOrderable() && $orderField = $column->getOrderField()) {
                 $options['sort'][$orderField] = self::SORT_MAP[$direction];
@@ -152,7 +154,7 @@ class MongoDBAdapter extends AbstractAdapter
                 'filters' => [],
             ])
             ->setRequired(['collection'])
-            ->setAllowedTypes('collection', \MongoDB\Collection::class)
+            ->setAllowedTypes('collection', Collection::class)
             ->setAllowedTypes('filters', 'array')
         ;
     }

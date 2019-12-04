@@ -14,7 +14,7 @@ namespace Omines\DataTablesBundle\Column;
 
 use Omines\DataTablesBundle\Exception\MissingDependencyException;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Twig_Environment;
+use Twig\Environment;
 
 /**
  * TwigColumn.
@@ -23,15 +23,15 @@ use Twig_Environment;
  */
 class TwigColumn extends AbstractColumn
 {
-    /** @var Twig_Environment */
+    /** @var Environment */
     private $twig;
 
     /**
      * TwigColumn constructor.
      *
-     * @param Twig_Environment|null $twig
+     * @param Environment|null $twig
      */
-    public function __construct(Twig_Environment $twig = null)
+    public function __construct(Environment $twig = null)
     {
         if (null === ($this->twig = $twig)) {
             throw new MissingDependencyException('You must have TwigBundle installed to use ' . self::class);

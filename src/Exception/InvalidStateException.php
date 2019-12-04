@@ -12,11 +12,13 @@ declare(strict_types=1);
 
 namespace Omines\DataTablesBundle\Exception;
 
+use RuntimeException;
+
 /**
  * InvalidStateException.
  *
  * @author Niels Keurentjes <niels.keurentjes@omines.com>
  */
-class InvalidStateException extends \RuntimeException
+class InvalidStateException extends RuntimeException
 {
 }

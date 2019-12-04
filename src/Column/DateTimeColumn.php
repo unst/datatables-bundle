@@ -12,6 +12,8 @@ declare(strict_types=1);
 
 namespace Omines\DataTablesBundle\Column;
 
+use DateTime;
+use DateTimeInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
@@ -28,8 +30,8 @@ class DateTimeColumn extends AbstractColumn
     {
         if (null === $value) {
             return $this->options['nullValue'];
-        } elseif (!$value instanceof \DateTimeInterface) {
-            $value = new \DateTime((string) $value);
+        } elseif (!$value instanceof DateTimeInterface) {
+            $value = new DateTime((string) $value);
         }
 
         return $value->format($this->options['format']);
